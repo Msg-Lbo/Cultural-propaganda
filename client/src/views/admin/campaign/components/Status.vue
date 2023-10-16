@@ -26,8 +26,12 @@
             <n-tag v-if="item.status == 0" size="small" type="info">待审核</n-tag>
           </td>
           <td style="display: flex; align-items: center; justify-content: center">
-            <n-button v-if="item.status !== 1" quaternary type="warning" @click="agreeJoin(item.campaignId)">同意</n-button>
-            <n-button v-if="item.status !== 2" quaternary type="warning" @click="refuseJoin(item.campaignId)">拒绝</n-button>
+            <n-button v-if="item.status !== 1" quaternary type="warning" @click="agreeJoin(item.campaignId, item.user)"
+              >同意</n-button
+            >
+            <n-button v-if="item.status !== 2" quaternary type="warning" @click="refuseJoin(item.campaignId, item.user)"
+              >拒绝</n-button
+            >
           </td>
         </tr>
       </tbody>
@@ -42,13 +46,11 @@
 import { ref } from "vue";
 import { getCampaignJoinApi, agreeJoinApi, refuseJoinApi } from "@/apis/campaign";
 import { useMessage } from "naive-ui";
-import { useUserStore } from "@/store/userinfo";
 let page = 1;
 let pageSize = 12;
 const count = ref(0);
 const status = ref(0);
 const message = useMessage();
-const userStore = useUserStore();
 interface CampaignList {
   id: number;
   user: string;
@@ -73,8 +75,8 @@ const changePage = (val: number) => {
 };
 
 // 同意参加活动
-const agreeJoin = async (campaignId: number | string) => {
-  const res = await agreeJoinApi(campaignId, userStore.account);
+const agreeJoin = async (campaignId: number | string, user: string) => {
+  const res = await agreeJoinApi(campaignId, user);
   if (res.code === 200) {
     message.success(res.msg);
     getCampaignList(status.value);
@@ -84,8 +86,8 @@ const agreeJoin = async (campaignId: number | string) => {
 };
 
 // 拒绝参加活动
-const refuseJoin = async (campaignId: number | string) => {
-  const res = await refuseJoinApi(campaignId, userStore.account);
+const refuseJoin = async (campaignId: number | string, user: string) => {
+  const res = await refuseJoinApi(campaignId, user);
   if (res.code === 200) {
     message.success(res.msg);
     getCampaignList(status.value);
