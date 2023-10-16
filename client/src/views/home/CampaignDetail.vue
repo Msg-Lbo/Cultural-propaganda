@@ -73,6 +73,10 @@ getArticleDetail();
 
 // 参与活动
 const joinCampaign = async () => {
+  if(userStore.account==='' || userStore.account===undefined){
+    message.error('请先登录');
+    return;
+  }
   const res = await joinCampaignApi(id.value!, userStore.account);
   if (res.code === 200) {
     if (res.status === 0) {
