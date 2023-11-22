@@ -14,7 +14,9 @@
             <span>下方可点击按钮可参与该活动</span>
           </div>
           <div class="action">
-            <n-button type="info" @click="showModal = true">活动报名</n-button>
+            <n-button type="info" v-if="users.includes(userStore.account as never)" disabled>您当前已报名该活动</n-button>
+            <n-button type="info" v-else @click="showModal = true">活动报名</n-button>
+
           </div>
         </div>
         <MdPreview :editorId="pid" :modelValue="text" />
@@ -57,6 +59,7 @@ const title = ref("");
 const author = ref("");
 const start_time = ref(0);
 const end_time = ref(0);
+const users = ref([]);
 const message = useMessage();
 const userStore = useUserStore();
 const showModal = ref(false);
@@ -68,15 +71,14 @@ const getArticleDetail = async () => {
   author.value = res.data.author;
   start_time.value = res.data.start_time;
   end_time.value = res.data.end_time;
+  users.value = res.data.users;
+  console.log();
+  
 };
 getArticleDetail();
 
 // 参与活动
 const joinCampaign = async () => {
-  if(userStore.account==='' || userStore.account===undefined){
-    message.error('请先登录');
-    return;
-  }
   const res = await joinCampaignApi(id.value!, userStore.account);
   if (res.code === 200) {
     if (res.status === 0) {

@@ -5,7 +5,7 @@ exports.joinCampaignOfStatus = async (req, res) => {
     const { user, campaign } = req.body
     try {
         // 如果被拒绝
-        const sql1 = `select * from user_campaigns where user=? and campaign=? and status=2`
+        const sql1 = `select * from user_campaigns where user=? and campaign=? and status = 2`
         const isRefuse = await executeQuery(sql1, [user, campaign])
         if (isRefuse.length !== 0) {
             return res.json({
@@ -16,23 +16,23 @@ exports.joinCampaignOfStatus = async (req, res) => {
             })
         }
         // 如果已经有记录了，就不再添加
-        const sql0 = `select * from user_campaigns where user=? and campaign=?`
+        const sql0 = `select * from user_campaigns where user=? and campaign=? and status = 0`
         const isJoin = await executeQuery(sql0, [user, campaign])
         if (isJoin.length !== 0) {
             return res.json({
                 code: 200,
-                msg: '已有记录,请勿重复提交',
+                msg: '已有记录,请勿重复提交,等待审核',
                 succeed: true,
                 status: 0
             })
         }
         // 如果已经参与了
-        const sql2 = `select * from user_campaigns where user=? and campaign=? and status=1`
+        const sql2 = `select * from user_campaigns where user=? and campaign=? and status = 1`
         const isJoin2 = await executeQuery(sql2, [user, campaign])
         if (isJoin2.length !== 0) {
             return res.json({
                 code: 200,
-                msg: '您已参与该活动,请勿重复提交',
+                msg: '审核已通过，快去发布作品吧',
                 succeed: true,
                 status: 1
             })
@@ -99,7 +99,6 @@ exports.joinCampaignOfAgree = async (req, res) => {
         }
         // 参与其他活动
         newCampaigns.push(campaign)
-        console.log(newCampaigns);
         await executeQuery(sql1, [JSON.stringify(newCampaigns), user])
         const [join_num] = await executeQuery(sql2, [campaign])
         await executeQuery(sql3, [join_num.join_num + 1, campaign])

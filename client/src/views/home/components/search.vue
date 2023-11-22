@@ -88,20 +88,8 @@ const articleList = ref<any>([]);
 const message = useMessage();
 // 模糊搜索文章
 const searchArticle = async () => {
-  // 关键词不可为空
-  if (keyWord.value === "") {
-    message.warning("关键词不能为空哦");
-    articleList.value = [];
-    return;
-  }
   const res = await searchArticleApi(keyWord.value);
   if (res.code === 200) {
-    if (res.data.length === 0) {
-      message.warning("没有找到相关文章哦");
-      // 置空
-      articleList.value = [];
-      return
-    }
     message.success(res.msg);
     articleList.value = res.data;
   }

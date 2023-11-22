@@ -10,14 +10,26 @@ exports.homeSetting = async (req, res) => {
         await executeQuery(sql, [JSON.stringify(recommend), 'recommend'])
         await executeQuery(sql, [JSON.stringify(information), 'information'])
         await executeQuery(sql, [JSON.stringify(campaigns), 'campaigns'])
-        // 更新campaigns的is_campaigns字段,将campaigns中的id对应的is_campaigns字段设置为1,其余设置为0
-        for (let i = 0; i < campaigns.length; i++) {
-            const sql = 'update article set is_campaigns = ? where id = ?'
-            await executeQuery(sql, [1, parseInt(campaigns[i])])
+        // 更新article表中的is_carousel字段
+        const checkColumnSql = "SHOW COLUMNS FROM article LIKE 'is_campaigns'"
+        let columnExists = await executeQuery(checkColumnSql)
+        //  如果不存在is_carousel字段,则添加is_carousel字段
+        if (columnExists && columnExists.length === 0) {
+            const addColumnSql = 'ALTER TABLE article ADD COLUMN is_campaigns INT DEFAULT 0'
+            await executeQuery(addColumnSql)
         }
-        const sql3 = 'update article set is_campaigns = ? where id not in (?)'
-        await executeQuery(sql3, [0, campaigns])
 
+        // 更新campaigns的is_campaigns字段,将campaigns中的id对应的is_campaigns字段设置为1,其余设置为0
+        if (campaigns !== null && campaigns !== undefined) {
+            const updateAllCampaignsSql = 'UPDATE article SET is_campaigns = ?'
+            await executeQuery(updateAllCampaignsSql, [0])
+        }else{
+            const updateOtherCampaignsSql = 'UPDATE article SET is_campaigns = ? WHERE id NOT IN (?)'
+            await executeQuery(updateOtherCampaignsSql, [0, campaigns])
+        }
+
+        const updateOtherCampaignsSql = 'UPDATE article SET is_campaigns = ? WHERE id NOT IN (?)'
+        await executeQuery(updateOtherCampaignsSql, [0, campaigns])
 
         return res.json({
             code: 200,

@@ -1,6 +1,6 @@
 <template>
     <div id="login">
-        <n-card title="光而不耀，静水流深">
+        <n-card title="绵阳市文化创意平台!">
             <n-tabs class="card-tabs" v-model:value="secletTab" size="small" animated>
                 <n-tab-pane name="signin" tab="登录">
                     <n-form :model="loginForm" :rules="loginRules">
@@ -49,7 +49,7 @@
 <script setup lang='ts'>
 import { FormItemRule, FormRules, useMessage } from 'naive-ui'
 import { ref } from 'vue'
-import forget from './components/Forget.vue'
+import forget from './components/forget.vue'
 import { loginApi, registerApi } from '@/apis/user';
 import router from '@/router';
 import { useUserStore } from '@/store/userinfo';
@@ -168,7 +168,7 @@ const handleRegister = async () => {
 <style lang='scss' scoped>
 #login {
     height: 100vh;
-    background-image: url('@/assets/images/loginbg.jpg');
+    background-image: url('@/assets/images/k3.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

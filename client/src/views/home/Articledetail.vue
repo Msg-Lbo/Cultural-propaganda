@@ -86,6 +86,7 @@ const title = ref("");
 const author = ref("");
 const time = ref("");
 const comment = ref("");
+const user = ref();
 const is_campaigns = ref(false);
 const message = useMessage();
 const dialog = useDialog();
@@ -93,13 +94,13 @@ const userStore = useUserStore();
 const getArticleDetail = async () => {
   if (!id.value) return;
   const res = await getArticleDetailApi(id.value.toString());
-  text.value = res.data[0].content;
-  title.value = res.data[0].article_title;
-  author.value = res.data[0].nickname;
-  time.value = res.data[0].create_time;
-  console.log(res.data[0].is_campaigns);
-
-  is_campaigns.value = res.data[0].is_campaigns == 1 ? true : false;
+  text.value = res.data.content;
+  title.value = res.data.article_title;
+  author.value = res.data.nickname;
+  time.value = res.data.create_time;
+  console.log(res.data.is_campaigns);
+  user.value = res.data.user
+  is_campaigns.value = res.data.is_campaigns == 1 ? true : false;
 };
 getArticleDetail();
 // 新增评论

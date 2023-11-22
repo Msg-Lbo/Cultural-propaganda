@@ -64,6 +64,8 @@ const getCampaignList = async (statusRef: number) => {
   status.value = statusRef;
   const res = await getCampaignJoinApi(status.value, page, pageSize);
   campaignList.value = res.data;
+  console.log(res.data);
+
   count.value = res.data.total;
 };
 // 初始化获取文章列表

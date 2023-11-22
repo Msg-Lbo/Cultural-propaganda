@@ -4,7 +4,7 @@
       <router-link to="/home" style="text-align: center; text-decoration: none; color: var(--n-item-text-color)">
         <div class="logo-titm" style="display: flex; align-items: center">
           <img src="../../../../public/logo.svg" alt="" style="width: 30px; height: 30px" />
-          一个简单的文化宣传平台
+          绵阳市文化创意平台
         </div>
       </router-link>
     </div>
@@ -82,7 +82,7 @@ const menuOptions: MenuOption[] = [
 ];
 const userOptions: MenuOption[] = [
   {
-    label: "控制台",
+    label: "后台管理",
     key: "manager",
     icon: renderIcon(manageAccountsIcon),
     show: userStore.identity == "管理员",

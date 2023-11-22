@@ -9,7 +9,7 @@ const host = '127.0.0.1';
 const port = 9090;
 
 const corsOptions = {
-    origin: ['http://localhost:5173'], // 允许访问的域名。也可以使用函数进行更复杂的判断。
+    origin: ['http://127.0.0.1:5173','http://localhost:5173'], // 允许访问的域名。也可以使用函数进行更复杂的判断。
     methods: 'GET,POST', // 允许的 HTTP 方法。
     allowedHeaders: 'Content-Type,Authorization', // 允许的请求头。
     exposedHeaders: 'Content-Length', // 允许暴露给客户端的响应头。

@@ -99,6 +99,8 @@ exports.updateCampaigns = async (req, res) => {
 exports.getCampaignsList = async (req, res) => {
     const { page, pageSize } = req.query
     try {
+
+        // 分页获取活动列表
         const sql = 'select * from campaigns limit ?,?'
         const campaignsList = await executeQuery(sql, [(page - 1) * parseInt(pageSize), parseInt(pageSize)])
         const sql1 = 'select count(*) as total from campaigns'
@@ -129,11 +131,23 @@ exports.getCampaignsDetail = async (req, res) => {
     try {
         const sql = 'select * from campaigns where id = ?'
         const campaignsDetail = await executeQuery(sql, [id])
+        // 获取该活动的参与人员昵称
+        const sql1 = 'select user from user_campaigns where campaign = ?'
+        const campaignsUsers = await executeQuery(sql1, [id])
+        const users = []
+        for (let i = 0; i < campaignsUsers.length; i++) {
+            const sql2 = 'select account from users where account = ?'
+            const [user] = await executeQuery(sql2, [campaignsUsers[i].user])
+            users.push(user.account)
+        }
         return res.json({
             code: 200,
             msg: '获取成功',
             succeed: true,
-            data: campaignsDetail[0]
+            data: {
+                ...campaignsDetail[0],
+                users
+            }
         })
     } catch (error) {
         console.log("服务端错误", error)
@@ -211,17 +225,19 @@ exports.deleteCampaigns = async (req, res) => {
         const sql = 'delete from campaigns where id = ?'
         await executeQuery(sql, [id])
         // 更新用户的campaigns字段
-        const sql1 = 'select account,campaigns from users'
+        const sql1 = 'select * from users'
+        const sql2 = 'update users set campaigns = ? where account = ?'
         const users = await executeQuery(sql1)
         for (let i = 0; i < users.length; i++) {
-            const campaignsArray = JSON.parse(users[i].campaigns)
-            if (campaignsArray !== null && campaignsArray.includes(parseInt(id))) {
-                const index = campaignsArray.indexOf(parseInt(id))
-                campaignsArray.splice(index, 1)
-                const sql2 = 'update user set campaigns = ? where account = ?'
-                await executeQuery(sql2, [JSON.stringify(campaignsArray), users[i].username])
+            const campaignsArray = JSON.parse(users[i].campaigns || "[]")
+            if (campaignsArray.includes(id)) {
+                campaignsArray.splice(campaignsArray.indexOf(parseInt(id)), 1)
+                await executeQuery(sql2, [JSON.stringify(campaignsArray), users[i].account])
             }
         }
+        // 删除活动参与表中的数据
+        const sql3 = 'delete from user_campaigns where campaign = ?'
+        await executeQuery(sql3, [id])
         return res.json({
             code: 200,
             msg: '删除成功',
