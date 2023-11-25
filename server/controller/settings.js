@@ -4,69 +4,114 @@ const executeQuery = require('../db')
 exports.homeSetting = async (req, res) => {
     const { carousel, recommend, information, campaigns } = req.body
     try {
-        // 更新carousel,recommend,information,campaigns的array字段
-        const sql = 'update settings set array = ? where name = ?'
-        await executeQuery(sql, [JSON.stringify(carousel), 'carousel'])
-        await executeQuery(sql, [JSON.stringify(recommend), 'recommend'])
-        await executeQuery(sql, [JSON.stringify(information), 'information'])
-        await executeQuery(sql, [JSON.stringify(campaigns), 'campaigns'])
-        // 更新article表中的is_carousel字段
-        const checkColumnSql = "SHOW COLUMNS FROM article LIKE 'is_campaigns'"
-        let columnExists = await executeQuery(checkColumnSql)
-        //  如果不存在is_carousel字段,则添加is_carousel字段
-        if (columnExists && columnExists.length === 0) {
-            const addColumnSql = 'ALTER TABLE article ADD COLUMN is_campaigns INT DEFAULT 0'
-            await executeQuery(addColumnSql)
+        // console.log(carousel, recommend, information, campaigns);
+        // 清空 setting_carousel setting_recommend setting_information setting_campaigns 表
+        const sql1 = `delete from setting_carousel`
+        const sql2 = `delete from setting_recommend`
+        const sql3 = `delete from setting_information`
+        const sql4 = `delete from setting_campaigns`
+        await executeQuery(sql1)
+        await executeQuery(sql2)
+        await executeQuery(sql3)
+        await executeQuery(sql4)
+        if (carousel) {
+            carousel.forEach(async item => {
+                // id从1开始
+                const id = carousel.indexOf(item) + 1
+                // 插入数据
+                const sql5 = `insert into setting_carousel (id, article_id) values (?, ?)`
+                await executeQuery(sql5, [id, item])
+
+            });
         }
+        if (recommend) {
+            recommend.forEach(async item => {
+                // id从1开始
+                const id = recommend.indexOf(item) + 1
+                const sql6 = `insert into setting_recommend (id, article_id) values (?, ?)`
+                await executeQuery(sql6, [id, item])
 
-        // 更新campaigns的is_campaigns字段,将campaigns中的id对应的is_campaigns字段设置为1,其余设置为0
-        if (campaigns !== null && campaigns !== undefined) {
-            const updateAllCampaignsSql = 'UPDATE article SET is_campaigns = ?'
-            await executeQuery(updateAllCampaignsSql, [0])
-        }else{
-            const updateOtherCampaignsSql = 'UPDATE article SET is_campaigns = ? WHERE id NOT IN (?)'
-            await executeQuery(updateOtherCampaignsSql, [0, campaigns])
+            });
         }
-
-        const updateOtherCampaignsSql = 'UPDATE article SET is_campaigns = ? WHERE id NOT IN (?)'
-        await executeQuery(updateOtherCampaignsSql, [0, campaigns])
-
+        if (information) {
+            information.forEach(async item => {
+                // id从1开始
+                const id = information.indexOf(item) + 1
+                const sql7 = `insert into setting_information (id, article_id) values (?, ?)`
+                await executeQuery(sql7, [id, item])
+            });
+        }
+        if (campaigns) {
+            campaigns.forEach(async item => {
+                // id从1开始
+                const id = campaigns.indexOf(item) + 1
+                const sql8 = `insert into setting_campaigns (id, article_id) values (?, ?)`
+                await executeQuery(sql8, [id, item])
+            });
+        }
         return res.json({
             code: 200,
-            msg: '设置成功',
-            succeed: true
+            succeed: true,
+            msg: '更新首页设置成功',
         })
     } catch (error) {
-        console.log("服务端错误", error)
+        console.log("服务端错误", error);
         return res.json({
             code: 500,
             msg: '服务端错误'
-        })
+        });
     }
 }
 // 获取首页设置
 exports.getHomeSetting = async (req, res) => {
     try {
-        const sql = 'SELECT array FROM settings WHERE name = ?';
-        const carousel = await executeQuery(sql, ['carousel']);
-        const recommend = await executeQuery(sql, ['recommend']);
-        const information = await executeQuery(sql, ['information']);
-        const campaigns = await executeQuery(sql, ['campaigns']);
-        const carouselTitles = JSON.parse(carousel[0].array);
-        const recommendTitles = JSON.parse(recommend[0].array);
-        const informationTitles = JSON.parse(information[0].array);
-        const campaignsTitles = JSON.parse(campaigns[0].array);
+        const sql1 = `select * from setting_carousel`
+        const sql2 = `select * from setting_recommend`
+        const sql3 = `select * from setting_information`
+        const sql4 = `select * from setting_campaigns`
+        const result1 = await executeQuery(sql1)
+        const result2 = await executeQuery(sql2)
+        const result3 = await executeQuery(sql3)
+        const result4 = await executeQuery(sql4)
+
+        // 遍历数组，将article_id取出，并查询article表，返回文章标题和id
+        let carousel = []
+        for (const item of result1) {
+            const sql5 = `select id, article_title from article where id = ?`
+            const [result] = await executeQuery(sql5, [item.article_id])
+            carousel.push(result)
+        }
+        let recommend = []
+        for (const item of result2) {
+            const sql6 = `select id, article_title from article where id = ?`
+            const [result] = await executeQuery(sql6, [item.article_id])
+            recommend.push(result)
+        }
+        let information = []
+        for (const item of result3) {
+            const sql7 = `select id, article_title from article where id = ?`
+            const [result] = await executeQuery(sql7, [item.article_id])
+            information.push(result)
+        }
+        let campaigns = []
+        for (const item of result4) {
+            const sql8 = `select id, article_title from article where id = ?`
+            const [result] = await executeQuery(sql8, [item.article_id])
+            campaigns.push(result)
+        }
+
+
         return res.json({
             code: 200,
-            msg: '获取成功',
+            msg: '获取首页设置成功',
             succeed: true,
             data: {
-                carousel: carouselTitles,
-                recommend: recommendTitles,
-                information: informationTitles,
-                campaigns: campaignsTitles,
+                carousel,
+                recommend,
+                information,
+                campaigns
             }
-        });
+        })
     } catch (error) {
         console.log("服务端错误", error);
         return res.json({

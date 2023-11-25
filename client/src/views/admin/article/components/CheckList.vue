@@ -21,17 +21,8 @@
             <n-tag type="error" size="small" v-if="item.is_check == 2">驳回</n-tag>
           </td>
           <td style="display: flex; align-items: center; justify-content: center">
-            <n-button quaternary type="warning" @click="toArticle(item.id)">查看</n-button>
-            <n-button quaternary type="warning" @click="editArticle(item.id)">编辑</n-button>
-            <n-popconfirm>
-              <template #trigger>
-                <n-button quaternary type="error">删除</n-button>
-              </template>
-              删除后无法恢复,确定删除吗?
-              <template #action>
-                <n-button type="error" size="small" @click="handleDelete(item.id)">确定</n-button>
-              </template>
-            </n-popconfirm>
+            <n-button quaternary type="warning" @click="isCheck(item.id, 2)">驳回</n-button>
+            <n-button quaternary type="success" @click="isCheck(item.id, 1)">通过</n-button>
           </td>
         </tr>
       </tbody>
@@ -44,9 +35,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { deleteArticleApi, getArticleListApi } from "@/apis/article";
+import { getArticleListApi, checkArticleApi } from "@/apis/article";
 import { useMessage } from "naive-ui";
-import router from "@/router";
 let page = 1;
 let pageSize = 12;
 const count = ref(0);
@@ -74,40 +64,18 @@ const getArticleList = async () => {
 };
 // 初始化获取文章列表
 getArticleList();
-// 编辑文章,传入ID
-const editArticle = (id: number) => {
-  selectTabs(id);
-};
 // 分页触发事件
 const changePage = (val: number) => {
   page = val;
   getArticleList();
 };
-// 使用defineEmits定义事件, 使用emits触发事件,向父组件传递数据
-const emits = defineEmits(["selectTabs"]);
-// 接受ID,触发事件,向父组件发送数据
-const selectTabs = (id: number) => {
-  emits("selectTabs", {
-    tab: "add",
-    id: id,
-  });
-};
-// 删除文章
-const handleDelete = async (id: number) => {
-  const res = await deleteArticleApi(id);
+// 审核文章
+const isCheck = async (id: number, is_check: number) => {
+  const res = await checkArticleApi(id, is_check);
   if (res.code === 200) {
     message.success(res.msg);
     getArticleList();
   }
-};
-const toArticle = (id: number) => {
-  // 路由传参
-  router.push({
-    path: "/detail",
-    query: {
-      id: id,
-    },
-  });
 };
 </script>
 

@@ -147,7 +147,7 @@ const toSearch = () => {
   padding: 4px 20px;
   margin: 0 8px 8px 8px;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-
+  box-sizing: border-box;
   .search-button {
     .search-box {
       display: flex;

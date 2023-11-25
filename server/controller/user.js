@@ -105,8 +105,8 @@ exports.login = async (req, res) => {
             // token时效
             expiresIn: expiresIn,
         })
-        // 把token放入cookie
-        res.cookie('token', token, { httpOnly: true, maxAge: 3600000, sameSite: 'none', secure: true });
+         // 将 Token 存储在 Cookie 中
+         res.cookie('token', token, { httpOnly: true, maxAge: 3600000 });
         return res.json({
             code: 200,
             msg: '登录成功',

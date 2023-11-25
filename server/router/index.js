@@ -10,6 +10,7 @@ router.use('/setting', require('./settings'));
 router.use('/comment', require('./comment'));
 router.use('/about', require('./about'));
 router.use('/campaign', require('./campaigns'));
+router.use('/album', require('./album'));
 router.get('/test', authToken, (req, res) => {
     res.json({
         code: 200,

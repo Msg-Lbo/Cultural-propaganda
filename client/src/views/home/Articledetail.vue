@@ -60,8 +60,15 @@
           }"
           v-model:value="comment"
         />
-        <div class="button" style="display: flex; justify-content: flex-end; margin-top: 8px">
-          <n-button type="success" size="small" :disabled="!userStore.account" @click="addComment">发送</n-button>
+        <div class="button" style="margin-top: 8px">
+          <n-space justify="space-between">
+            <n-button size="small" type="error" @click="likeArticle">{{
+              is_like === true ? "取消点赞" : "点赞"
+            }}</n-button>
+            <n-button size="small" type="warning" @click="collectArticle">{{ is_collect === true ? '取消收藏' : '收藏' }}</n-button>
+            <n-button size="small" type="info" @click="shareArticle">分享</n-button>
+            <n-button size="small" type="success" :disabled="!userStore.account" @click="addComment">发送</n-button>
+          </n-space>
         </div>
       </div>
     </div>
@@ -73,7 +80,7 @@ import { ref } from "vue";
 import { MdPreview } from "md-editor-v3";
 import "md-editor-v3/lib/preview.css";
 import { useRoute } from "vue-router";
-import { getArticleDetailApi } from "@/apis/article";
+import { getArticleDetailApi, likeArticleApi, collectArticleApi } from "@/apis/article";
 import { useUserStore } from "@/store/userinfo";
 import { addCommentApi, getCommentListApi } from "@/apis/comment";
 import { useDialog, useMessage } from "naive-ui";
@@ -91,15 +98,54 @@ const is_campaigns = ref(false);
 const message = useMessage();
 const dialog = useDialog();
 const userStore = useUserStore();
+const is_like = ref(false);
+const is_collect = ref(false);
+// 点赞
+const likeArticle = async () => {
+  const res = await likeArticleApi(Number(id.value));
+  if (res.code === 200) {
+    is_like.value = !is_like.value;
+    message.success(res.msg);
+  }
+};
+
+// 收藏
+const collectArticle = async () => {
+  const res = await collectArticleApi(Number(id.value));
+  if (res.code === 200) {
+    is_collect.value = !is_collect.value;
+    message.success(res.msg);
+  }
+};
+
+// 分享
+const shareArticle = () => {
+  // 获取文章连接
+  const url = window.location.href;
+  // 写入剪贴板
+  navigator.clipboard.writeText(url).then(
+    () => {
+      message.success("复制成功");
+    },
+    () => {
+      message.error("复制失败");
+    }
+  );
+};
+
+// 获取文章详情
 const getArticleDetail = async () => {
   if (!id.value) return;
   const res = await getArticleDetailApi(id.value.toString());
+  console.log(res);
+  is_like.value = res.data.is_like == 0 ? false : true;
+  is_collect.value = res.data.is_collect == 0 ? false : true;
   text.value = res.data.content;
   title.value = res.data.article_title;
   author.value = res.data.nickname;
   time.value = res.data.create_time;
   console.log(res.data.is_campaigns);
-  user.value = res.data.user
+  user.value = res.data.user;
   is_campaigns.value = res.data.is_campaigns == 1 ? true : false;
 };
 getArticleDetail();

@@ -9,11 +9,12 @@ export const addArticleApi = async (data: { article_title: string, content: stri
     })
 }
 // 分页获取文章
-export const getArticleListApi = async (page: number, pageSize: number, category_id?: number | string) => {
+export const getArticleListApi = async (status: number, page: number, pageSize: number, category_id ?: number | string) => {
     return await $http({
         url: '/article/article-list',
         method: 'get',
         params: {
+            status: status,
             page: page,
             pageSize: pageSize,
             category_id: category_id
@@ -101,5 +102,44 @@ export const getHotArticleListApi = async () => {
     return await $http({
         url: '/article/get-hot',
         method: 'get'
+    })
+}
+
+// 审核文章
+export const checkArticleApi = async (id: number, is_check: number) => {
+    return await $http({
+        url: '/article/check_article',
+        method: 'POST',
+        data: { id, is_check }
+    })
+}
+
+// 点赞或取消点赞文章
+export const likeArticleApi = async (id: number) => {
+    return await $http({
+        url: '/article/like-article',
+        method: 'POST',
+        data: { id }
+    })
+}
+
+// 收藏或取消收藏文章
+export const collectArticleApi = async (id: number) => {
+    return await $http({
+        url: '/article/collect-article',
+        method: 'POST',
+        data: { id }
+    })
+}
+
+// 获取用户收藏的文章
+export const getUserCollectArticleApi = async (page: number, pageSize: number) => {
+    return await $http({
+        url: '/article/get-collect',
+        method: 'get',
+        params: {
+            page,
+            pageSize
+        }
     })
 }

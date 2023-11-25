@@ -76,7 +76,7 @@ const props = defineProps({
 const getArticleDetail = async () => {
     const res = await getArticleDetailApi(props.editId)
     if (res.code === 200) {
-        articleForm.value = res.data[0]
+        articleForm.value = res.data
         console.log(articleForm.value);
     }
 }
