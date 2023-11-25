@@ -1,6 +1,7 @@
 <template>
   <div id="collect-list">
     <div class="collect-list">
+      收藏列表
       <div class="collect-item" v-for="item in articleList" :key="item.id">
         <div class="collect-item-img">
           <img :src="item.cover" alt="" />
