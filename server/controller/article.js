@@ -4,9 +4,9 @@ const jwtconfig = require("../jwt_config");
 const secretKey = jwtconfig.jwsSecretKey;
 // 新增文章
 exports.addArticle = async (req, res) => {
-    const { article_title, des, content, category_id, cover, author } = req.body
+    const { article_title, des, content, category_id, cover, author,album } = req.body
     // 如果有一个为空
-    if (!article_title || !des || !content || !category_id || !cover || !author) {
+    if (!article_title || !des || !content || !category_id || !cover || !author || !album) {
         res.json({
             code: 400,
             msg: '参数错误'
@@ -16,8 +16,8 @@ exports.addArticle = async (req, res) => {
 
     try {
         const create_time = new Date()
-        const sql = 'insert into article (article_title,des,content,category_id,cover,author,create_time) values (?,?,?,?,?,?,?)'
-        const rows = await executeQuery(sql, [article_title, des, content, category_id, cover, author, create_time])
+        const sql = 'insert into article (article_title,des,content,category_id,cover,author,create_time,album) values (?,?,?,?,?,?,?,?)'
+        const rows = await executeQuery(sql, [article_title, des, content, category_id, cover, author, create_time, album])
         // 如果影响行数为0
         if (rows.affectedRows === 0) {
             res.json({
@@ -237,12 +237,13 @@ exports.getArticleDetail = async (req, res) => {
         const decodedToken = jwt.verify(token, secretKey);
         const account = decodedToken.account;
         // 增加已审核文章阅读次数,获取作者昵称,当前用户是否点赞,当前用户是否收藏
-        const sql = `SELECT a.*, u.nickname, COUNT(cmt.id) AS comment_count,
+        const sql = `SELECT a.*, u.nickname, al.name, COUNT(cmt.id) AS comment_count,
                     (SELECT COUNT(*) FROM like_article WHERE article_id = a.id AND account = ?) AS is_like,
                     (SELECT COUNT(*) FROM collect_article WHERE article_id = a.id AND account = ?) AS is_collect
                     FROM article a
                     LEFT JOIN users u ON a.author = u.account
                     LEFT JOIN comment cmt ON cmt.article_id = a.id
+                    LEFT JOIN albums al ON a.album = al.id
                     WHERE a.id = ?
                     GROUP BY a.id, u.nickname, cmt.article_id`;
 

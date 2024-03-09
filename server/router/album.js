@@ -7,5 +7,6 @@ const authToken = require('../utils/checkTokenExpiration');
 router.get('/album-list', albumController.getAlbumList)
 // 创建专辑
 router.post('/add-album', authToken, albumController.createAlbum)
-
+// 获取专辑下的文章
+router.get('/albumId-list', albumController.getAlbumIdList)
 module.exports = router

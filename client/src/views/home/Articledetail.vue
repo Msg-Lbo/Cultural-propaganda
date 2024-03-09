@@ -6,6 +6,7 @@
           <h1>{{ title }}</h1>
           <div class="article-info">
             <span>作者：{{ author }}</span>
+            <span>专辑：{{ name }}</span>
             <span>发布时间：{{ time }}</span>
           </div>
           <div class="campaigns" v-if="is_campaigns">
@@ -65,7 +66,9 @@
             <n-button size="small" type="error" @click="likeArticle">{{
               is_like === true ? "取消点赞" : "点赞"
             }}</n-button>
-            <n-button size="small" type="warning" @click="collectArticle">{{ is_collect === true ? '取消收藏' : '收藏' }}</n-button>
+            <n-button size="small" type="warning" @click="collectArticle">{{
+              is_collect === true ? "取消收藏" : "收藏"
+            }}</n-button>
             <n-button size="small" type="info" @click="shareArticle">分享</n-button>
             <n-button size="small" type="success" :disabled="!userStore.account" @click="addComment">发送</n-button>
           </n-space>
@@ -91,6 +94,7 @@ const route = useRoute(); // 获取路由对象
 const id = ref(route.query.id); // 获取路由参数
 const title = ref("");
 const author = ref("");
+const name = ref("");
 const time = ref("");
 const comment = ref("");
 const user = ref();
@@ -146,6 +150,7 @@ const getArticleDetail = async () => {
   time.value = res.data.create_time;
   console.log(res.data.is_campaigns);
   user.value = res.data.user;
+  name.value = res.data.name;
   is_campaigns.value = res.data.is_campaigns == 1 ? true : false;
 };
 getArticleDetail();

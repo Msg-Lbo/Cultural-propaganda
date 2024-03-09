@@ -7,15 +7,33 @@ exports.getAlbumList = async (req, res) => {
     try {
         // 获取用户账号
         const token = req.cookies.token;
+        if (!token) {
+            return res.json({
+                code: 400,
+                msg: '请先登录'
+            })
+        }
         const decodedToken = jwt.verify(token, secretKey);
         const account = decodedToken.account;
         const sql = `select * from albums where account = ?`
         const result = await executeQuery(sql, [account])
+        // 获取文章列表,只要文章id和文章标题
+        const sql2 = `select article.id, article.article_title from article left join albums on article.album = albums.id where article.album = ?`
+        let album_arr = []
+        for (const item of result) {
+            const result2 = await executeQuery(sql2, [item.id])
+            const data = {
+                id: item.id,
+                albumName: item.name,
+                articleList: result2
+            }
+            album_arr.push(data)
+        }
         return res.json({
             code: 200,
             succeed: true,
             msg: '获取专辑列表成功',
-            data: result
+            data: album_arr
         })
     } catch (err) {
         console.log(err);
@@ -32,6 +50,12 @@ exports.createAlbum = async (req, res) => {
         const { name } = req.body
         // 获取用户账号
         const token = req.cookies.token;
+        if (!token) {
+            return res.json({
+                code: 400,
+                msg: '请先登录'
+            })
+        }
         const decodedToken = jwt.verify(token, secretKey);
         const account = decodedToken.account;
         // 查询该用户的专辑是否存在
@@ -52,6 +76,36 @@ exports.createAlbum = async (req, res) => {
                 msg: '创建专辑成功',
             })
         }
+    } catch (err) {
+        console.log(err);
+        return res.json({
+            code: 500,
+            msg: '服务端错误'
+        })
+    }
+}
+
+// 获取专辑下的文章列表
+exports.getAlbumIdList = async (req, res) => {
+    try {
+        // 获取用户账号
+        const token = req.cookies.token;
+        if (!token) {
+            return res.json({
+                code: 400,
+                msg: '请先登录'
+            })
+        }
+        const decodedToken = jwt.verify(token, secretKey);
+        const account = decodedToken.account;
+        const sql = `select * from albums where account = ?`
+        const result = await executeQuery(sql, [account])
+        return res.json({
+            code: 200,
+            succeed: true,
+            msg: '获取成功',
+            data: result
+        })
     } catch (err) {
         console.log(err);
         return res.json({

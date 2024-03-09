@@ -14,6 +14,9 @@
                             <n-form-item label="文章分类" path="category_id">
                                 <n-select v-model:value="articleForm.category_id" :options="categoryOptions" />
                             </n-form-item>
+                            <n-form-item label="文章专辑" path="album">
+                                <n-select v-model:value="articleForm.album" :options="albumOptions" />
+                            </n-form-item>
                         </n-form>
                     </div>
                     <div class="cover-content">
@@ -48,6 +51,7 @@ import { MdEditor } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import { UploadFileInfo, useMessage } from 'naive-ui';
 import { addArticleApi, getArticleDetailApi, updateArticleApi, uploadArticleImageApi } from '@/apis/article';
+import { getIdListApi } from "@/apis/album";
 import { useUserStore } from '@/store/userinfo';
 import { getCategoryListApi } from '@/apis/category';
 
@@ -63,8 +67,10 @@ const articleForm = ref({
     cover: '',
     content: '',
     category_id: '',
+    album:'',
     author: userStore.account
 })
+
 // 父组件传递过来的id
 const props = defineProps({
     editId: {
@@ -72,11 +78,11 @@ const props = defineProps({
         default: 0
     }
 })
-// 或者文章详情
+// 获取文章详情
 const getArticleDetail = async () => {
     const res = await getArticleDetailApi(props.editId)
     if (res.code === 200) {
-        articleForm.value = res.data[0]
+        articleForm.value = res.data    
     }
 }
 // 如果有id，就获取文章详情
@@ -84,7 +90,21 @@ if (props.editId) {
     getArticleDetail()
 }
 
-
+// 获取专辑列表
+const albumOptions = ref([])
+const getAlbumList = async () => {
+    const res = await getIdListApi()
+    if (res.code === 200) {
+        const formatData = res.data.map((item: any) => {
+            return {
+                label: item.name,
+                value: item.id
+            }
+        })
+        albumOptions.value = formatData
+    }
+}
+getAlbumList()
 // 获取分类列表
 const categoryOptions = ref([])
 const getCategoryList = async () => {

@@ -5,7 +5,9 @@ export const createAlbumApi = async (name: string) => {
     return await $http({
         url: '/album/add-album',
         method: 'POST',
-        data: name
+        data: {
+            name
+        }
     })
 }
 
@@ -13,6 +15,14 @@ export const createAlbumApi = async (name: string) => {
 export const getAlbumListApi = async () => {
     return await $http({
         url: '/album/album-list',
+        method: 'GET',
+    })
+}
+
+// 获取专辑ID列表
+export const getIdListApi = async () => {
+    return await $http({
+        url: '/album/albumId-list',
         method: 'GET',
     })
 }
