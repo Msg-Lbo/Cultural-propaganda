@@ -15,22 +15,28 @@
           <div style="width: 100%">
             <n-space vertical>
               <n-card size="small">
-                <n-checkbox-group>
-                  <n-space item-style="display: flex;" align="center">
-                    <template v-for="item in submitFormRef.carousel">
-                      <n-tag type="success" closable v-if="item.article_title" :key="item.id">
-                        {{ item.article_title }}
-                      </n-tag>
-                    </template>
-                  </n-space>
-                </n-checkbox-group>
+                <n-space item-style="display: flex;" align="center">
+                  <template v-for="item in submitFormRef.carousel" :key="item.id">
+                    <n-tag
+                      type="success"
+                      closable
+                      v-if="item.article_title"
+                      :key="item.id"
+                      @close="removeId(submitFormRef.carousel, item.id)"
+                    >
+                      {{ item.article_title }}
+                    </n-tag>
+                  </template>
+                </n-space>
               </n-card>
               <n-card size="small" v-if="articleList">
                 <n-checkbox-group v-model:value="submitFormRef.carousel" @update:value="handleUpdateValue">
                   <n-space item-style="display: flex;" align="center">
-                    <n-tag type="info" v-for="item in articleList">
-                      <n-checkbox :value="item.id" :label="item.article_title" />
-                    </n-tag>
+                    <temolate v-for="item in articleList" :key="item.id">
+                      <n-tag type="info" v-if="!articleList.includes(item)">
+                        <n-checkbox :value="item.id" :label="item.article_title" />
+                      </n-tag>
+                    </temolate>
                   </n-space>
                 </n-checkbox-group>
               </n-card>
@@ -43,8 +49,13 @@
               <n-card size="small">
                 <n-checkbox-group>
                   <n-space item-style="display: flex;" align="center">
-                    <template v-for="item in submitFormRef.recommend">
-                      <n-tag type="success" closable v-if="item.article_title" :key="item.id">
+                    <template v-for="item in submitFormRef.recommend" :key="item.id">
+                      <n-tag
+                        type="success"
+                        closable
+                        v-if="item.article_title"
+                        @close="removeId(submitFormRef.recommend, item.id)"
+                      >
                         {{ item.article_title }}
                       </n-tag>
                     </template>
@@ -70,7 +81,13 @@
                 <n-checkbox-group>
                   <n-space item-style="display: flex;" align="center">
                     <template v-for="item in submitFormRef.information">
-                      <n-tag type="success" closable v-if="item.article_title" :key="item.id">
+                      <n-tag
+                        type="success"
+                        closable
+                        v-if="item.article_title"
+                        :key="item.id"
+                        @close="removeId(submitFormRef.information, item.id)"
+                      >
                         {{ item.article_title }}
                       </n-tag>
                     </template>
@@ -147,9 +164,8 @@ const submitFormRef = ref<any>({
 });
 
 const handleUpdateValue = (value: (string | number)[]) => {
-  message.info(JSON.stringify(value));
+  // message.info(JSON.stringify(value));
 };
-
 // 搜索文章
 const handleSearch = async (query: string) => {
   if (query === "" || query === undefined || query === null) {
@@ -200,6 +216,7 @@ const getHomeSettings = async () => {
   const res = await getHomeSettingApi();
   if (res.code === 200) {
     submitFormRef.value = res.data;
+    console.log(submitFormRef.value.carousel);
   }
 };
 getHomeSettings();
